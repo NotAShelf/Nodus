@@ -1,4 +1,15 @@
-# Nodus
+# Nōdus
+
+<!--
+Q: What the fuck is a "Nōdus"?
+A: Latin for "node", fancy name
+   for a plugin that connects
+   things. Was more fun in my
+   head.
+
+I know nobody will ever read this, but if you do
+then you get a star or something. I don't know.
+-->
 
 [![Neovim 0.10.1](https://img.shields.io/badge/Neovim-0.10.1-blueviolet.svg?logo=Neovim&logoColor=green)](https://neovim.io/)
 
@@ -20,6 +31,19 @@ appreciate your feedback.
 Call `:lua require('nodus').open_link_under_cursor()` manually or with a keybind
 to open the link under your cursor with your preferred link opener. This
 defaults to `xdg-open`, but it can be changed in the setup table.
+
+### How does matching work?
+
+In short, links that start with a valid protocol prefix (http://, https://,
+etc.) that are also inside `< >` will match.
+
+```nix
+# This should match.
+# <https://sample.com>
+
+# This should not match.
+# https://sample.com
+```
 
 ## Setup
 
