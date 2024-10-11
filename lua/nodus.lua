@@ -2,14 +2,17 @@ local M = {}
 local api = vim.api
 local fn = vim.fn
 local log = vim.log
+local ui = vim.ui
 local match_id = nil
 
--- default configuration
+-- Default configuration for Nodus
+-- @field protocols: default protocols to match
+-- @field highlight_group: highlight group for matching links
+-- @field ft: file types for which matching will be enabled
 M.config = {
-    opener_path = "xdg-open",               -- default path to xdg-open, mainly for Nix users :)
-    protocols = { "http://", "https://" },  -- default protocols to match
-    highlight_group = "NodusLinkHighlight", -- highlight group for matching links
-    ft = { "text", "md", "markdown" }       -- file types for which matching will be enabled
+    protocols = { "http://", "https://" },
+    highlight_group = "NodusLinkHighlight",
+    ft = { "text", "md", "markdown" }
 }
 
 --- Setup function for the plugin
@@ -25,12 +28,6 @@ function M.setup(user_config)
             require('nodus').highlight_link_under_cursor()
         end,
     })
-end
-
---- Open a link using the configured opener path
--- @param link string: the link to be opened
-local function open_link(link)
-    fn.jobstart({ M.config.opener_path, link }, { detach = true })
 end
 
 --- Get the word currently under the cursor
@@ -82,7 +79,7 @@ function M.open_link_under_cursor()
     local word = get_word_under_cursor()
     if word:match("^<http[s]?://[^>]+>$") then
         local link = word:sub(2, -2)
-        open_link(link)
+        ui.open(link)
     else
         vim.notify("No valid link under the cursor", log.levels.INFO)
     end
