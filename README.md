@@ -53,17 +53,20 @@ etc.) that are also inside `< >` will match.
 require("nodus").setup()
 ```
 
-Available configuration options:
+### Available configuration options:
 
 ```lua
-opener_path = "xdg-open",               -- default path to xdg-open, mainly for Nix users :)
-protocols = { "http://", "https://" },  -- default protocols to match, you can support your protocols here (e.g. gemini://)
-highlight_group = "NodusLinkHighlight", -- highlight group for matching links
+{
+    protocols = { "http://", "https://" },  -- default protocols to match, you can add your protocols here (e.g. "gemini://")
+    highlight_group = "NodusLinkHighlight", -- highlight group for matching links
+    ft = { "text", "md", "markdown" }       -- file types for which matching will be enabled
+}
 ```
 
-Darwin or Windows user may replace `xdg-open` with their respective opener (e.g.
-`open` on Darwin) for extended platform support. By default, only Linux is
-supported.
+> [!TIP]
+> Nodus now uses `vim.ui.open` to use your system's file opener. You will be
+> able to open links _as long as_ Neovim has access to your file opener. Hurray
+> for platform support!
 
 ### Highlighting
 
