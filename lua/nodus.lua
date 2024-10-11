@@ -70,6 +70,7 @@ end
 -- tell what is a valid link that can be opened, and what is not. User
 -- can customize the highlight group to their linking.
 function M.highlight_link_under_cursor()
+    -- TODO: Switch to nvim_buf_add_highlight() at some point?
     local word = get_word_under_cursor()
 
     -- clear any previous match if it exists
