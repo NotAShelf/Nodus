@@ -12,6 +12,8 @@ M.config = {
     ft = { "text", "md", "markdown" }       -- file types for which matching will be enabled
 }
 
+--- Setup function for the plugin
+-- @param user_config table: user-defined configuration options
 function M.setup(user_config)
     M.config = vim.tbl_extend("force", M.config, user_config or {})
     api.nvim_command("highlight " .. M.config.highlight_group .. " gui=underline")
@@ -25,11 +27,14 @@ function M.setup(user_config)
     })
 end
 
+--- Open a link using the configured opener path
+-- @param link string: the link to be opened
 local function open_link(link)
     fn.jobstart({ M.config.opener_path, link }, { detach = true })
 end
 
--- Get the word under the cursor.
+--- Get the word currently under the cursor
+-- @return string: the word under the cursor
 local function get_word_under_cursor()
     local _, col = unpack(api.nvim_win_get_cursor(0))
     local line = api.nvim_get_current_line()
@@ -50,9 +55,9 @@ local function get_word_under_cursor()
     return line:sub(start_col, end_col - 1)
 end
 
--- Check if the current filetype is allowed for link opening and highlighting
--- by checking if it is in the list of allowed filetypes. If it is not, return
--- false, otherwise return true.
+--- Check if the current filetype is allowed for link opening and highlighting
+-- @return boolean: true if the filetype is allowed, false otherwise
+-- @return string: the current filetype
 local function is_filetype_allowed()
     local ft = api.nvim_buf_get_option(0, 'filetype')
     for _, allowed_ft in ipairs(M.config.ft) do
