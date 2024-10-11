@@ -1,0 +1,39 @@
+name: Autogenerate Documentation
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths:
+      - "lua/**.lua"
+      - "README.md"
+
+# Cancel any in-progress CI runs for a PR if it is updated
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  autogen:
+    name: "vimdoc"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Generate docs with panvimdoc
+        uses: kdheepak/panvimdoc@v4.0.1
+        with:
+          vimdoc: ${{ github.event.repository.name }}
+          description: Link highlighter
+
+      - name: Push changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_user_name: "github-actions[bot]"
+          commit_user_email: 62766066+github-actions[bot]@users.noreply.github.com
+          commit_message: "ci: autogenerate docs"
+          branch: ${{ github.head_ref }}
+          file_pattern: lua/ doc/nodus.txt
