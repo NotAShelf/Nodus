@@ -30,7 +30,7 @@ jobs:
           description: Link highlighter
 
       - name: Push changes
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_user_name: "github-actions[bot]"
           commit_user_email: 62766066+github-actions[bot]@users.noreply.github.com
