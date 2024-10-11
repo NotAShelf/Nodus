@@ -21,7 +21,7 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Generate docs with panvimdoc
         uses: kdheepak/panvimdoc@v4.0.1
