@@ -1,25 +1,32 @@
-local M = {}
+local nodus = {}
 local api = vim.api
 local fn = vim.fn
 local log = vim.log
 local ui = vim.ui
 local match_id = nil
 
--- Default configuration for Nodus
--- @field protocols: default protocols to match
--- @field highlight_group: highlight group for matching links
--- @field ft: file types for which matching will be enabled
-M.config = {
+--- User-defined configuration options for Nodus. The defaults should
+--- be sufficient for most users, but can be customized using the `setup`
+--- table in your configuration.
+--- @class config
+--- @field protocols string[] Protocol identifiers to match links by
+--- @field highlight_group string Highlight group for matched links
+--- @field ft string[] File types for which matching will be enabled
+--- @type config
+nodus.config = {
     protocols = { "http://", "https://" },
     highlight_group = "NodusLinkHighlight",
     ft = { "text", "md", "markdown" }
 }
 
+
 --- Setup function for the plugin
--- @param user_config table: user-defined configuration options
-function M.setup(user_config)
-    M.config = vim.tbl_extend("force", M.config, user_config or {})
-    api.nvim_command("highlight " .. M.config.highlight_group .. " gui=underline")
+--- @param user_config config User-defined configuration options
+--- @see nodus.config
+--- @return nil
+function nodus.setup(user_config)
+    nodus.config = vim.tbl_extend("force", nodus.config, user_config or {})
+    api.nvim_command("highlight " .. nodus.config.highlight_group .. " gui=underline")
 
     api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
         pattern = '*',
@@ -31,7 +38,7 @@ function M.setup(user_config)
 end
 
 --- Get the word currently under the cursor
--- @return string: the word under the cursor
+--- @return string: the word under the cursor
 local function get_word_under_cursor()
     local _, col = unpack(api.nvim_win_get_cursor(0))
     local line = api.nvim_get_current_line()
@@ -52,23 +59,26 @@ local function get_word_under_cursor()
     return line:sub(start_col, end_col - 1)
 end
 
---- Check if the current filetype is allowed for link opening and highlighting
--- @return boolean: true if the filetype is allowed, false otherwise
--- @return string: the current filetype
+--- Check if the filetype for the current buffer is in the list of allowed filetypes
+--- for link opening and highlighting.
+--- @return boolean true if the filetype is allowed, false otherwise
+--- @return string ft filetype of the current buffer, returned regardless of status
 local function is_filetype_allowed()
     local ft = api.nvim_buf_get_option(0, 'filetype')
-    for _, allowed_ft in ipairs(M.config.ft) do
+    for _, allowed_ft in ipairs(nodus.config.ft) do
         if ft == allowed_ft then
             return true, ft
         end
     end
+
     return false, ft
 end
 
--- Match links that fit our criteria and open them using open_link() when the
--- function is called. If the target link is *not* an URL that can be opened,
--- then return an error with the INFO log level.
-function M.open_link_under_cursor()
+--- Match links that fit the criteria of a matching link and open them using
+--- `vim.ui.open()` when the function is called. If the target link is *not* an
+--- URL that can be opened, then return an error with the INFO log level.
+--- @return nil
+function nodus.open_link_under_cursor()
     local allowed, ft = is_filetype_allowed()
     if not allowed then
         vim.notify("Link opening is not supported for this file type: " .. ft, log.levels.INFO)
@@ -85,9 +95,12 @@ function M.open_link_under_cursor()
     end
 end
 
--- Also implement highlighting for valid links. This should help the user tell
--- what is a valid link that can be opened, and what is not.
-function M.highlight_link_under_cursor()
+--- Highlight valid links under the cursor if current buffer is in the list of
+--- allowed filetypes. This should help the user tell what is a valid link that
+--- can be opened, and what is not. The highlight group can be customized using
+--- the `highlight_group` configuration option in the `setup` table.
+--- @return nil
+function nodus.highlight_link_under_cursor()
     if not is_filetype_allowed() then
         -- clear any previous match if it exists
         if match_id ~= nil then
@@ -107,8 +120,8 @@ function M.highlight_link_under_cursor()
 
     -- only highlight if the word is a valid link inside < >
     if word:match("^<http[s]?://[^>]+>$") then
-        match_id = fn.matchadd(M.config.highlight_group, "\\V" .. fn.escape(word, "\\"))
+        match_id = fn.matchadd(nodus.config.highlight_group, "\\V" .. fn.escape(word, "\\"))
     end
 end
 
-return M
+return nodus
