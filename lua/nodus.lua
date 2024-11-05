@@ -14,10 +14,12 @@ local match_id = nil
 --- @field protocols string[]: Protocol identifiers to match links by
 --- @field highlight_group string: Highlight group for matched links
 --- @field ft string[]: File types for which matching will be enabled
+--- @field debounce number: Debounce delay in milliseconds
 nodus.config = {
     protocols = { "http://", "https://" },
     highlight_group = "NodusLinkHighlight",
-    ft = { "text", "md", "markdown" }
+    ft = { "text", "md", "markdown" },
+    debounce = 180 -- least noticable delay
 }
 
 --- Debounce a given function, ensuring that it is called only after
@@ -47,7 +49,7 @@ function nodus.setup(user_config)
         group = api.nvim_create_augroup('NodusLinkOpener', {}),
         callback = debounce(function()
             require('nodus').highlight_link_under_cursor()
-        end, 190) -- 190ms debounce delay
+        end, nodus.config.debounce) -- debounce the highlight function
     })
 end
 
